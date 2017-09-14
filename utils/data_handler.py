@@ -93,7 +93,8 @@ def getHour(date):
 
 class CompetitionData:
 
-    def __init__(self, frac=0.5):
+    def __init__(self, frac=0.5, hotstart=False):
+        self.hotstart = hotstart
         self.raw_submit = None
         self.raw_train = None
         self.mean_coords = None
@@ -112,12 +113,13 @@ class CompetitionData:
         self.submit_data = None
         self.normalize_method = "minmax"
 
-        self.read_data(frac)
-        self.geo_coords_vars()
-        self.kmeans = getLatLngKmeans(self.raw_train[self.too_far_index].sample(frac=0.7))
-        self.weekday_vars()
-        self.another_filter()
-        self.create_cols_and_class()
+        if not hotstart:
+            self.read_data(frac)
+            self.geo_coords_vars()
+            self.kmeans = getLatLngKmeans(self.raw_train[self.too_far_index].sample(frac=0.7))
+            self.weekday_vars()
+            self.another_filter()
+            self.create_cols_and_class()
 
     def read_data(self, frac):
         self.raw_submit = pd.read_csv("data/test.csv")
@@ -209,10 +211,10 @@ class CompetitionData:
         return df.dropna()
 
     def get_enhanced_train(self):
-        self.enhanced_train = self.enhance(self.raw_train)
+        self.enhanced_train = pd.read_csv('data/enhanced_train.csv') if self.hotstart else self.enhance(self.raw_train)
 
     def get_enhanced_submit(self):
-        self.enhanced_submit = self.enhance(self.raw_submit, False)
+        self.enhanced_submit = pd.read_csv('data/enhanced_submit.csv') if self.hotstart else self.enhance(self.raw_submit, False)
 
     def set_train_dataset(self):
         self.get_enhanced_train() if self.enhanced_train is None else None

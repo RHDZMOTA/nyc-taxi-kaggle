@@ -112,14 +112,16 @@ class CompetitionData:
         self.train_dataset = None
         self.submit_data = None
         self.normalize_method = "minmax"
+        self.weekday_vars()
+        self.create_cols_and_class()
+        self.read_data(frac)
+
 
         if not hotstart:
-            self.read_data(frac)
             self.geo_coords_vars()
             self.kmeans = getLatLngKmeans(self.raw_train[self.too_far_index].sample(frac=0.7))
-            self.weekday_vars()
             self.another_filter()
-            self.create_cols_and_class()
+
 
     def read_data(self, frac):
         self.raw_submit = pd.read_csv("data/test.csv")
@@ -217,7 +219,8 @@ class CompetitionData:
         self.enhanced_submit = pd.read_csv('data/enhanced_submit.csv') if self.hotstart else self.enhance(self.raw_submit, False)
 
     def set_train_dataset(self):
-        self.get_enhanced_train() if self.enhanced_train is None else None
+        if self.enhanced_train is None:
+            self.get_enhanced_train()
         input_data = self.enhanced_train[self.relevant_cols]
         output_data = self.enhanced_train[["log_duration"]]
         self.transf = {'log_distance': lambda x: x ** 7}
@@ -227,7 +230,8 @@ class CompetitionData:
                           apply=self.transf)
 
     def submit_dataset(self):
-        self.get_enhanced_submit() if self.enhanced_submit is None else None
+        if self.enhanced_submit is None:
+            self.get_enhanced_submit()
         submit_data = self.enhanced_submit[self.relevant_cols].apply(
             lambda x: normalizeExternalData(x, self.train_dataset, self.normalize_method), 1)
         for col in self.transf:

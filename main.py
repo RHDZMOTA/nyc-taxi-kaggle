@@ -63,7 +63,7 @@ def neural_nets_procedure(comp_data, params):
     model = 'MLP neural net'
     # (50,50,50,50,50)
     ml_model = regressor_procedure(
-        ml_model=MLPRegressor(hidden_layer_sizes=(100,100,100,100,100)),
+        ml_model=MLPRegressor(hidden_layer_sizes=(100,100,100,100,100,100,100,100,100,100)),
         comp_data=comp_data,
         model_desc=model
     )
@@ -75,7 +75,7 @@ def neural_nets_procedure(comp_data, params):
 def random_forest_procedure(comp_data, params):
     model = 'random_forest'
     ml_model = regressor_procedure(
-        ml_model=RandomForestRegressor(),
+        ml_model=RandomForestRegressor(n_estimators=75, n_jobs=-1),
         comp_data=comp_data,
         model_desc=model
     )
